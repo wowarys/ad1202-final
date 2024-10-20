@@ -5,7 +5,7 @@ import { LogIn, PlusCircle } from "lucide-react";
 
 const Header = () => {
   return (
-    <header className="flex flex-row items-center justify-between gap-10">
+    <header className="flex flex-row items-center justify-between gap-10 p-4">
       <div className="logo">
         <img
           src="../../img/logo.webp"

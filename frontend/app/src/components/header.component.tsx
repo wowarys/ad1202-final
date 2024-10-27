@@ -2,16 +2,19 @@ import React from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { LogIn, PlusCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
-    <header className="flex flex-row items-center justify-between gap-10 p-4">
+    <header className="container flex flex-row items-center justify-between gap-10 !py-4 bg-white">
       <div className="logo">
-        <img
-          src="../../img/logo.webp"
-          alt="logo"
-          className="h-auto w-full min-w-[125px] max-w-[125px] object-contain cursor-pointer"
-        />
+        <Link to="/">
+          <img
+            src="../../img/logo.webp"
+            alt="logo"
+            className="h-auto w-full min-w-[125px] max-w-[125px] object-contain cursor-pointer"
+          />
+        </Link>
       </div>
       <Input isSearchIcon={true} placeholder="Поиск по играм" />
       <div className="flex flex-row gap-4">

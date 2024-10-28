@@ -44,11 +44,7 @@ const GameDetail = () => {
   };
 
   if (!game) {
-    return (
-      <div className="container !px-4 !py-8 text-center">
-        <p>Игра не найдена</p>
-      </div>
-    );
+    return <></>;
   }
 
   const discountedPrice = game.price - game.price * (game.discount / 100);

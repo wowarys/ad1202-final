@@ -11,12 +11,19 @@
 body {
   font-family: "Inter", sans-serif;
   background-color: white !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+}
+
+.flex-grow {
+  flex-grow: 1;
 }
 
 @layer base {

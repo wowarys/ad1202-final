@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Heart } from "lucide-react";
 import { gamesData } from "../model/data/games-data";
+import { Button } from "../ui/button";
 
 interface Game {
   id: string;
@@ -23,6 +24,7 @@ interface Game {
 }
 
 const GameDetail = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [game, setGame] = useState<Game | null>(null);
   const [isLiked, setIsLiked] = useState(false);
@@ -44,7 +46,25 @@ const GameDetail = () => {
   };
 
   if (!game) {
-    return <></>;
+    return (
+      <div className="container">
+        <div className="flex flex-col gap-10 justify-center items-center py-8">
+          <img src="../../img/404.webp" alt="404" className="w-1/2 h-auto" />
+          <h2 className="text-4xl font-semibold text-gray-800">
+            Игра не найдена
+          </h2>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            Вернуться на главную
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   const discountedPrice = game.price - game.price * (game.discount / 100);

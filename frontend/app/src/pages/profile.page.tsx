@@ -1,7 +1,7 @@
 import React from "react";
 
 const ProfilePage = () => {
-  return <div>profile.page</div>;
+  return <div className="container">gg</div>;
 };
 
 export default ProfilePage;

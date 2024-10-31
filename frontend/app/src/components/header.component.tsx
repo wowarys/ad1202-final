@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { LogIn, Menu, UserPlus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { User } from "../model/types/user";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,19 +13,23 @@ import {
 } from "../ui/dropdown";
 import { Sheet, SheetTrigger, SheetContent } from "../ui/sheet";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+import { getInitials } from "../lib/utils";
 
 const Header = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Example user data
-  const user: User = {
-    first_name: "Test",
-    last_name: "User",
-    email: "testuser123@gmail.com",
-  };
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
-  const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    setIsLoggedIn(false);
+    navigate("/sign/in");
   };
 
   const handleLogin = () => {
@@ -37,8 +40,12 @@ const Header = () => {
     navigate("/sign/up");
   };
 
+  const handleProfile = () => {
+    navigate("/profile");
+  };
+
   return (
-    <header className="container flex flex-row items-center justify-between gap-10 !py-4 bg-white shadow-sm max-md:gap-4">
+    <header className="container flex flex-row items-center justify-between gap-10 !py-4 bg-white max-md:gap-4">
       <div className="logo">
         <Link to="/">
           <img
@@ -50,58 +57,69 @@ const Header = () => {
       </div>
       <Input isSearchIcon={true} placeholder="Поиск по играм" />
       <div className="flex flex-row gap-4 items-center max-md:hidden">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleLogin}
-          className="flex items-center gap-2 hover:bg-gray-50 transition-colors duration-200"
-        >
-          <LogIn className="w-4 h-4" />
-          <span>Войти</span>
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleRegister}
-          className="flex items-center gap-2 hover:bg-gray-50 transition-colors duration-200"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>Регистрация</span>
-        </Button>
-        <div className="relative">
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Avatar className="cursor-pointer inline-flex h-12 w-12 select-none items-center justify-center overflow-hidden rounded-full align-middle">
-                <AvatarFallback className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 font-medium text-base text-white">
-                  {getInitials(user.first_name!, user.last_name!)}
-                </AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    {user.first_name} {user.last_name}
-                  </p>
-                  <p className="text-xs leading-none text-gray-500">
-                    {user.email}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-gray-200" />
-              <DropdownMenuItem className="cursor-pointer">
-                Профиль
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                Мои покупки
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-gray-200" />
-              <DropdownMenuItem className="cursor-pointer text-red-600">
-                Выйти
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        {!isLoggedIn ? (
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleLogin}
+              className="flex items-center gap-2 hover:bg-gray-50 transition-colors duration-200"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Войти</span>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleRegister}
+              className="flex items-center gap-2 hover:bg-gray-50 transition-colors duration-200"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Регистрация</span>
+            </Button>
+          </>
+        ) : (
+          <div className="relative">
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="cursor-pointer inline-flex h-12 w-12 select-none items-center justify-center overflow-hidden rounded-full align-middle">
+                  <AvatarFallback className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 font-medium text-base text-white">
+                    {getInitials(localStorage.getItem("userName") || "")}
+                  </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1 gap-1">
+                    <p className="text-sm text-gray-500">Имя пользователя</p>
+                    <p className="text-sm font-medium leading-none">
+                      {localStorage.getItem("userName")}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-gray-200" />
+                <DropdownMenuItem
+                  onClick={() => {
+                    handleProfile();
+                  }}
+                  className="cursor-pointer"
+                >
+                  Профиль
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
+                  Мои покупки
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-gray-200" />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer text-red-600"
+                >
+                  Выйти
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </div>
       <Sheet>
         <SheetTrigger>
@@ -112,58 +130,68 @@ const Header = () => {
         </SheetTrigger>
         <SheetContent className="w-[400px] max-md:!w-[240px] items-center justify-center flex">
           <div className="flex flex-col gap-4 items-center">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleLogin}
-              className="flex items-center gap-2 hover:bg-gray-50 transition-colors duration-200 w-full"
-            >
-              <LogIn className="w-4 h-4" />
-              <span>Войти</span>
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleRegister}
-              className="flex items-center gap-2 hover:bg-gray-50 transition-colors duration-200 w-full"
-            >
-              <UserPlus className="w-4 h-4" />
-              <span>Регистрация</span>
-            </Button>
-            <div className="relative">
-              <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                  <Avatar className="cursor-pointer inline-flex h-12 w-12 select-none items-center justify-center overflow-hidden rounded-full align-middle">
-                    <AvatarFallback className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 font-medium text-base text-white">
-                      {getInitials(user.first_name!, user.last_name!)}
-                    </AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="w-56">
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {user.first_name} {user.last_name}
-                      </p>
-                      <p className="text-xs leading-none text-gray-500">
-                        {user.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-gray-200" />
-                  <DropdownMenuItem className="cursor-pointer">
-                    Профиль
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">
-                    Мои покупки
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-gray-200" />
-                  <DropdownMenuItem className="cursor-pointer text-red-600">
-                    Выйти
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            {!isLoggedIn ? (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleLogin}
+                  className="flex items-center gap-2 hover:bg-gray-50 transition-colors duration-200 w-full"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Войти</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleRegister}
+                  className="flex items-center gap-2 hover:bg-gray-50 transition-colors duration-200 w-full"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Регистрация</span>
+                </Button>
+              </>
+            ) : (
+              <div className="relative">
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <Avatar className="cursor-pointer inline-flex h-12 w-12 select-none items-center justify-center overflow-hidden rounded-full align-middle">
+                      <AvatarFallback className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 font-medium text-base text-white">
+                        {getInitials(localStorage.getItem("userName") || "")}
+                      </AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="w-56">
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {localStorage.getItem("userName")}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-gray-200" />
+                    <DropdownMenuItem
+                      onClick={() => {
+                        handleProfile();
+                      }}
+                      className="cursor-pointer"
+                    >
+                      Профиль
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer">
+                      Мои покупки
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-gray-200" />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="cursor-pointer text-red-600"
+                    >
+                      Выйти
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
           </div>
         </SheetContent>
       </Sheet>

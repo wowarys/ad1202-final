@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Form,
   FormControl,
@@ -21,9 +21,18 @@ import {
 } from "../ui/card";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { fetchUserProfile, loginUser } from "../api/api";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const formSchema = z.object({
     username: z.string().min(6, {
@@ -43,14 +52,24 @@ const LoginPage = () => {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    loginUser({
+      username: values.username,
+      password: values.password,
+    })
+      .then((access_token) => {
+        fetchUserProfile(access_token);
+        navigate("/profile/create");
+      })
+      .catch((error) => {
+        console.error("Ошибка при авторизации", error);
+      });
   }
 
   const navigate = useNavigate();
 
   return (
     <div className="container">
-      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <div className="flex justify-center items-center min-h-screen">
         <Card className="w-full max-w-md mx-4 shadow-lg">
           <CardHeader className="space-y-1">
             <div className="flex items-center justify-center gap-2">
@@ -124,24 +143,38 @@ const LoginPage = () => {
                   )}
                 />
                 <div className="flex flex-col gap-3">
-                  <Button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-500 duration-300 hover:from-purple-700 hover:to-blue-600 transition-all shadow-md hover:shadow-lg hover:scale-[0.99]"
-                  >
-                    <LogIn className="mr-2" size={16} /> Войти
-                  </Button>
-                  <div className="text-sm text-center text-gray-500">
-                    Нет аккаунта?&nbsp;
+                  {!isLoggedIn ? (
+                    <>
+                      <Button
+                        type="submit"
+                        className="w-full bg-gradient-to-r from-purple-600 to-blue-500 duration-300 hover:from-purple-700 hover:to-blue-600 transition-all shadow-md hover:shadow-lg hover:scale-[0.99]"
+                      >
+                        <LogIn className="mr-2" size={16} /> Войти
+                      </Button>
+                      <div className="text-sm text-center text-gray-500">
+                        Нет аккаунта?
+                        <Button
+                          variant="link"
+                          className="px-1 text-purple-600 hover:text-purple-700 transition-colors"
+                          onClick={() => {
+                            navigate("/sign/up");
+                          }}
+                        >
+                          Зарегистрируйтесь
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
                     <Button
                       variant="link"
                       className="px-1 text-purple-600 hover:text-purple-700 transition-colors"
                       onClick={() => {
-                        navigate("/sign/up");
+                        navigate("/profile");
                       }}
                     >
-                      Зарегистрируйтесь
+                      Профиль
                     </Button>
-                  </div>
+                  )}
                 </div>
               </form>
             </Form>

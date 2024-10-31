@@ -18,7 +18,6 @@ const App = () => {
         <Routes>
           <Route path="/sign/in" element={<LoginPage />} />
           <Route path="/sign/up" element={<RegisterPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profile/create" element={<CreateProfilePage />} />
 
           <Route
@@ -29,6 +28,7 @@ const App = () => {
                 <main className="flex-grow">
                   <Routes>
                     <Route path="/" element={<MainPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/games/:id" element={<GameDetail />} />
                     <Route path="*" element={<NotFoundPage />} />
                   </Routes>

@@ -22,8 +22,10 @@ import {
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchUserProfile, loginUser } from "../api/api";
+import { toast } from "../hooks/use-toast";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -35,12 +37,8 @@ const LoginPage = () => {
   }, []);
 
   const formSchema = z.object({
-    username: z.string().min(6, {
-      message: "Имя пользователя должно содержать минимум 6 символов",
-    }),
-    password: z.string().min(8, {
-      message: "Пароль должен содержать минимум 8 символов",
-    }),
+    username: z.string().nonempty("Имя пользователя не может быть пустым"),
+    password: z.string().nonempty("Пароль не может быть пустым"),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -57,15 +55,27 @@ const LoginPage = () => {
       password: values.password,
     })
       .then((access_token) => {
-        fetchUserProfile(access_token);
-        navigate("/profile/create");
+        fetchUserProfile(access_token)
+          .then(() => {
+            navigate("/");
+          })
+          .catch((error) => {
+            if (error) {
+              navigate("/profile/create");
+            } else {
+              console.error("Ошибка при получении профиля", error);
+              toast({
+                title: "Ошибка",
+                description: "Произошла ошибка при получении профиля",
+                variant: "destructive",
+              });
+            }
+          });
       })
       .catch((error) => {
         console.error("Ошибка при авторизации", error);
       });
   }
-
-  const navigate = useNavigate();
 
   return (
     <div className="container">

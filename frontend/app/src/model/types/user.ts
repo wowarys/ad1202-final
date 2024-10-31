@@ -6,3 +6,11 @@ export interface User {
   email?: string;
   password?: string;
 }
+
+export interface UserProfile {
+  name: string;
+  age: number;
+  bio: string;
+  username: string;
+  user_id: string;
+}

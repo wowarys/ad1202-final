@@ -1,19 +1,27 @@
 import axios from "axios";
 import { toast } from "../hooks/use-toast";
 import { calculateAge } from "../lib/utils";
+import { UserProfile } from "../model/types/user";
 
-export const fetchUserProfile = async (token: string) => {
+export const fetchUserProfile = async (token: string): Promise<UserProfile> => {
   try {
     const response = await axios.get("/api/v1/user/profile", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    const { name } = response.data;
-    localStorage.setItem("userName", name);
-    console.log(name);
+    const profile = response.data;
+
+    return profile;
   } catch (error) {
-    console.error("Ошибка при получении профиля пользователя", error);
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        window.location.href = "/profile/create";
+      } else {
+        console.error("Ошибка при получении профиля пользователя", error);
+      }
+    }
+    return Promise.reject(error);
   }
 };
 
@@ -30,10 +38,6 @@ export const loginUser = async (userData: {
     const { access_token } = response.data;
     localStorage.setItem("accessToken", access_token);
 
-    await fetchUserProfile(access_token);
-
-    console.log(access_token);
-
     toast({
       title: "Авторизация успешно",
       description: "Вы успешно вошли",
@@ -46,10 +50,10 @@ export const loginUser = async (userData: {
         const errorMessage =
           error.response.data.detail ||
           error.response.data.message ||
-          "Ошибка при регистрации";
+          "Ошибка при авторизации";
 
         toast({
-          title: "Ошибка регистрации",
+          title: "Ошибка авторизации",
           description: errorMessage,
           variant: "destructive",
         });

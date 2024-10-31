@@ -14,21 +14,44 @@ import {
 import { Sheet, SheetTrigger, SheetContent } from "../ui/sheet";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { getInitials } from "../lib/utils";
+import { fetchUserProfile } from "../api/api";
 
 const Header = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profile, setProfile] = useState({
+    name: "",
+    username: "",
+    age: 0,
+    bio: "",
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) {
       setIsLoggedIn(true);
+      fetchUserProfile(token)
+        .then((profileData) => {
+          setProfile(profileData);
+        })
+        .catch((error) => {
+          console.error("Error fetching user profile", error);
+          localStorage.removeItem("accessToken");
+          setIsLoggedIn(false);
+          navigate("/sign/in");
+        });
     }
-  }, []);
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     setIsLoggedIn(false);
+    setProfile({
+      name: "",
+      username: "",
+      age: 0,
+      bio: "",
+    });
     navigate("/sign/in");
   };
 
@@ -43,6 +66,8 @@ const Header = () => {
   const handleProfile = () => {
     navigate("/profile");
   };
+
+  const displayName = profile.name || profile.username;
 
   return (
     <header className="container flex flex-row items-center justify-between gap-10 !py-4 bg-white max-md:gap-4">
@@ -84,7 +109,7 @@ const Header = () => {
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer inline-flex h-12 w-12 select-none items-center justify-center overflow-hidden rounded-full align-middle">
                   <AvatarFallback className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 font-medium text-base text-white">
-                    {getInitials(localStorage.getItem("userName") || "")}
+                    {getInitials(displayName)}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
@@ -93,15 +118,13 @@ const Header = () => {
                   <div className="flex flex-col space-y-1 gap-1">
                     <p className="text-sm text-gray-500">Имя пользователя</p>
                     <p className="text-sm font-medium leading-none">
-                      {localStorage.getItem("userName")}
+                      {displayName}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-gray-200" />
                 <DropdownMenuItem
-                  onClick={() => {
-                    handleProfile();
-                  }}
+                  onClick={handleProfile}
                   className="cursor-pointer"
                 >
                   Профиль
@@ -157,23 +180,24 @@ const Header = () => {
                   <DropdownMenuTrigger asChild>
                     <Avatar className="cursor-pointer inline-flex h-12 w-12 select-none items-center justify-center overflow-hidden rounded-full align-middle">
                       <AvatarFallback className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 font-medium text-base text-white">
-                        {getInitials(localStorage.getItem("userName") || "")}
+                        {getInitials(displayName)}
                       </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="center" className="w-56">
                     <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
+                      <div className="flex flex-col space-y-1 gap-1">
+                        <p className="text-sm text-gray-500">
+                          Имя пользователя
+                        </p>
                         <p className="text-sm font-medium leading-none">
-                          {localStorage.getItem("userName")}
+                          {displayName}
                         </p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-gray-200" />
                     <DropdownMenuItem
-                      onClick={() => {
-                        handleProfile();
-                      }}
+                      onClick={handleProfile}
                       className="cursor-pointer"
                     >
                       Профиль

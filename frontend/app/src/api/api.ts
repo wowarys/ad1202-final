@@ -198,3 +198,59 @@ export const createProfile = async (profileData: {
     throw error;
   }
 };
+
+export const editProfile = async (profileData: {
+  name: string;
+  bio: string;
+  age: number;
+}) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("Access token not found");
+    }
+
+    const response = await axios.put("/api/v1/user/profile/edit", profileData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    toast({
+      title: "Профиль обновлен",
+      description: "Ваш профиль успешно обновлен",
+    });
+
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        const errorMessage =
+          error.response.data.detail ||
+          error.response.data.message ||
+          "Ошибка при обновлении профиля";
+
+        toast({
+          title: "Ошибка обновления профиля",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } else if (error.request) {
+        toast({
+          title: "Ошибка сети",
+          description:
+            "Не удалось подключиться к серверу. Пожалуйста, проверьте подключение.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Unexpected Error",
+          description: "Произошла непредвиденная ошибка",
+          variant: "destructive",
+        });
+      }
+    }
+
+    throw error;
+  }
+};

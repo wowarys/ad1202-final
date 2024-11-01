@@ -24,6 +24,7 @@ const Header = () => {
     username: "",
     age: 0,
     bio: "",
+    user_id: "",
   });
 
   useEffect(() => {
@@ -51,6 +52,7 @@ const Header = () => {
       username: "",
       age: 0,
       bio: "",
+      user_id: "",
     });
     navigate("/sign/in");
   };
@@ -109,7 +111,7 @@ const Header = () => {
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer inline-flex h-12 w-12 select-none items-center justify-center overflow-hidden rounded-full align-middle">
                   <AvatarFallback className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 font-medium text-base text-white">
-                    {getInitials(displayName)}
+                    {getInitials(displayName ? displayName : profile.user_id)}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
@@ -118,7 +120,7 @@ const Header = () => {
                   <div className="flex flex-col space-y-1 gap-1">
                     <p className="text-sm text-gray-500">Имя пользователя</p>
                     <p className="text-sm font-medium leading-none">
-                      {displayName}
+                      {displayName ? displayName : profile.user_id}
                     </p>
                   </div>
                 </DropdownMenuLabel>
@@ -180,7 +182,9 @@ const Header = () => {
                   <DropdownMenuTrigger asChild>
                     <Avatar className="cursor-pointer inline-flex h-12 w-12 select-none items-center justify-center overflow-hidden rounded-full align-middle">
                       <AvatarFallback className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 font-medium text-base text-white">
-                        {getInitials(displayName)}
+                        {getInitials(
+                          displayName ? displayName : profile.user_id
+                        )}
                       </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
@@ -191,7 +195,7 @@ const Header = () => {
                           Имя пользователя
                         </p>
                         <p className="text-sm font-medium leading-none">
-                          {displayName}
+                          {displayName ? displayName : profile.user_id}
                         </p>
                       </div>
                     </DropdownMenuLabel>

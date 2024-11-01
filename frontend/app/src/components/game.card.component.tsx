@@ -13,6 +13,7 @@ interface Props {
   imageSrc: string;
   likes: number;
   liked: boolean;
+  disableLike?: boolean;
   // eslint-disable-next-line no-unused-vars
   onLikeToggle: (id: number) => void;
 }
@@ -28,12 +29,14 @@ const GameCard: FC<Props> = ({
   imageSrc,
   likes,
   liked,
+  disableLike = false,
   onLikeToggle,
 }) => {
   const navigate = useNavigate();
   const discountedPrice = price - price * (discount / 100);
 
   const handleLike = (e: React.MouseEvent) => {
+    if (disableLike) return;
     e.stopPropagation();
     onLikeToggle(id);
   };
@@ -70,7 +73,12 @@ const GameCard: FC<Props> = ({
           </h3>
           <button
             onClick={handleLike}
-            className="flex items-center gap-1 group p-1 hover:bg-gray-100 rounded-full"
+            disabled={disableLike}
+            className={`flex items-center gap-1 group p-1 ${
+              disableLike
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-100"
+            } rounded-full`}
           >
             <Heart
               size={24}

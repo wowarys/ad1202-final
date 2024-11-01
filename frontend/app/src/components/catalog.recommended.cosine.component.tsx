@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
 import GameCard from "./game.card.component";
-import { getUserRecommendations } from "../api/api";
+import { getUserRecommendationsByCosine } from "../api/api";
 import { IGameDetails } from "../model/types/games";
 import Loader from "./loader.component";
 
-const CatalogRecommended = () => {
+const CatalogRecommendedCosine = () => {
   const [loading, setLoading] = useState(true);
   const [gamesData, setGamesData] = useState<IGameDetails[]>([]);
 
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const data = await getUserRecommendations();
+        const data = await getUserRecommendationsByCosine();
         setGamesData(data);
       } catch (error) {
         console.error("Ошибка при получении рекомендаций", error);
@@ -49,7 +49,7 @@ const CatalogRecommended = () => {
     <section className="bg-white text-black">
       <div className="container">
         <div className="py-5 flex flex-col gap-5">
-          <h1 className="text-3xl font-bold">Рекомендуемые игры</h1>
+          <h1 className="text-3xl font-bold">Рекомендованные похожие игры</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {gamesData.map((game) => (
               <GameCard
@@ -75,4 +75,4 @@ const CatalogRecommended = () => {
   );
 };
 
-export default CatalogRecommended;
+export default CatalogRecommendedCosine;

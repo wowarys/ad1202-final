@@ -24,6 +24,7 @@ import {
   likeProduct,
   purchaseProductById,
 } from "../api/api";
+import { toast } from "../hooks/use-toast";
 
 const GameDetail = () => {
   const navigate = useNavigate();
@@ -88,6 +89,19 @@ const GameDetail = () => {
     } catch (error) {
       console.error("Error purchasing game:", error);
     }
+  };
+
+  const handlePurchaseClick = () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      toast({
+        title: "Требуется авторизация",
+        description: "Для покупки необходимо авторизоваться",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsDialogOpen(true);
   };
 
   if (loading) {
@@ -248,7 +262,7 @@ const GameDetail = () => {
               </SelectContent>
             </Select>
             <Button
-              onClick={() => setIsDialogOpen(true)}
+              onClick={handlePurchaseClick}
               disabled={!game?.quantity}
               className="flex-1"
             >

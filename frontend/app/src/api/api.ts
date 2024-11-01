@@ -254,3 +254,367 @@ export const editProfile = async (profileData: {
     throw error;
   }
 };
+
+export const GetAllProducts = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await axios.get("/api/v1/product/all", { headers });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        const errorMessage =
+          error.response.data.detail ||
+          error.response.data.message ||
+          "Ошибка при получении продуктов";
+
+        toast({
+          title: "Ошибка получения продуктов",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } else if (error.request) {
+        toast({
+          title: "Ошибка сети",
+          description:
+            "Не удалось подключиться к серверу. Пожалуйста, проверьте подключение.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Unexpected Error",
+          description: "Произошла непредвиденная ошибка",
+          variant: "destructive",
+        });
+      }
+    }
+
+    throw error;
+  }
+};
+
+export const GetProductById = async (id: number) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await axios.get(`/api/v1/product/${id}`, { headers });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        const errorMessage =
+          error.response.data.detail ||
+          error.response.data.message ||
+          "Ошибка при получении продукта";
+
+        toast({
+          title: "Ошибка получения продукта",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } else if (error.request) {
+        toast({
+          title: "Ошибка сети",
+          description:
+            "Не удалось подключиться к серверу. Пожалуйста, проверьте подключение.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Unexpected Error",
+          description: "Произошла непредвиденная ошибка",
+          variant: "destructive",
+        });
+      }
+    }
+
+    throw error;
+  }
+};
+
+export const searchProducts = async (query: string) => {
+  try {
+    const response = await axios.get(`/api/v1/product/search?query=${query}`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        const errorMessage =
+          error.response.data.detail ||
+          error.response.data.message ||
+          "Ошибка при поиске продуктов";
+
+        toast({
+          title: "Ошибка поиска продуктов",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } else if (error.request) {
+        toast({
+          title: "Ошибка сети",
+          description:
+            "Не удалось подключиться к серверу. Пожалуйста, проверьте подключение.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Unexpected Error",
+          description: "Произошла непредвиденная ошибка",
+          variant: "destructive",
+        });
+      }
+    }
+
+    throw error;
+  }
+};
+
+export const likeProduct = async (id: number) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("Access token not found");
+    }
+
+    const response = await axios.patch(
+      `/api/v1/product/${id}/like`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return {
+      liked: response.data.liked,
+      likes: response.data.likes,
+      userId: response.data.user_id,
+      productId: response.data.product_id,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        const errorMessage =
+          error.response.data.detail ||
+          error.response.data.message ||
+          "Ошибка при лайке продукта";
+
+        toast({
+          title: "Ошибка лайка продукта",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } else if (error.request) {
+        toast({
+          title: "Ошибка сети",
+          description:
+            "Не удалось подключиться к серверу. Пожалуйста, проверьте подключение.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Unexpected Error",
+          description: "Произошла непредвиденная ошибка",
+          variant: "destructive",
+        });
+      }
+    }
+
+    throw error;
+  }
+};
+
+export const getAllLikes = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("Access token not found");
+    }
+
+    const response = await axios.get("/api/v1/product/likes", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        const errorMessage =
+          error.response.data.detail ||
+          error.response.data.message ||
+          "Ошибка при получении лайков";
+
+        toast({
+          title: "Ошибка получения лайков",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } else if (error.request) {
+        toast({
+          title: "Ошибка сети",
+          description:
+            "Не удалось подключиться к серверу. Пожалуйста, проверьте подключение.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Unexpected Error",
+          description: "Произошла непредвиденная ошибка",
+          variant: "destructive",
+        });
+      }
+    }
+
+    throw error;
+  }
+};
+
+export const purchaseProductById = async (id: number, quantity: number) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("Access token not found");
+    }
+
+    await axios.get(`/api/v1/purchase/${id}?quantity=${quantity}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    toast({
+      title: "Успешная покупка",
+      description: "Покупка совершена успешно",
+    });
+
+    return null;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        const errorMessage =
+          error.response.data.detail ||
+          error.response.data.message ||
+          "Ошибка при покупке продукта";
+
+        toast({
+          title: "Ошибка покупки продукта",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } else if (error.request) {
+        toast({
+          title: "Ошибка сети",
+          description:
+            "Не удалось подключиться к серверу. Пожалуйста, проверьте подключение.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Unexpected Error",
+          description: "Произошла непредвиденная ошибка",
+          variant: "destructive",
+        });
+      }
+    }
+
+    throw error;
+  }
+};
+
+export const getUserHistory = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("Access token not found");
+    }
+
+    const response = await axios.get("/api/v1/user/product/history", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        const errorMessage =
+          error.response.data.detail ||
+          error.response.data.message ||
+          "Ошибка при получении истории покупок";
+
+        toast({
+          title: "Ошибка получения истории покупок",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } else if (error.request) {
+        toast({
+          title: "Ошибка сети",
+          description:
+            "Не удалось подключиться к серверу. Пожалуйста, проверьте подключение.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Unexpected Error",
+          description: "Произошла непредвиденная ошибка",
+          variant: "destructive",
+        });
+      }
+    }
+
+    throw error;
+  }
+};
+
+export const getUserRecommendations = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("Access token not found");
+    }
+
+    const response = await axios.get("/api/v1/recommend/product", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        const errorMessage =
+          error.response.data.detail ||
+          error.response.data.message ||
+          "Ошибка при получении рекомендаций";
+
+        toast({
+          title: "Ошибка получения рекомендаций",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } else if (error.request) {
+        toast({
+          title: "Ошибка сети",
+          description:
+            "Не удалось подключиться к серверу. Пожалуйста, проверьте подключение.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Unexpected Error",
+          description: "Произошла непредвиденная ошибка",
+          variant: "destructive",
+        });
+      }
+    }
+
+    throw error;
+  }
+};

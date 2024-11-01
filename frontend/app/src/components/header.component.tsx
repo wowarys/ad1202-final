@@ -14,7 +14,8 @@ import {
 import { Sheet, SheetTrigger, SheetContent } from "../ui/sheet";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { getInitials } from "../lib/utils";
-import { fetchUserProfile } from "../api/api";
+import { fetchUserProfile, searchProducts } from "../api/api";
+import { IGameDetails } from "../model/types/games";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -26,6 +27,8 @@ const Header = () => {
     bio: "",
     user_id: "",
   });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<IGameDetails[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -69,6 +72,36 @@ const Header = () => {
     navigate("/profile");
   };
 
+  const handleHistory = () => {
+    navigate("/profile/history");
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSearchChange = async (event: { target: { value: any } }) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+    if (query.length > 2) {
+      try {
+        const results = await searchProducts(query);
+        setSearchResults(results);
+      } catch (error) {
+        console.error("Error searching products", error);
+      }
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  const handleSearchSelect = (games: IGameDetails) => {
+    navigate(`/games/${games.id}`);
+    setSearchQuery("");
+    setSearchResults([]);
+  };
+
+  const calculateDiscountedPrice = (price: number, discount: number) => {
+    return price - (price * discount) / 100;
+  };
+
   const displayName = profile.name || profile.username;
 
   return (
@@ -82,7 +115,42 @@ const Header = () => {
           />
         </Link>
       </div>
-      <Input isSearchIcon={true} placeholder="Поиск по играм" />
+      <div className="relative flex-grow">
+        <Input
+          isSearchIcon={true}
+          placeholder="Поиск по играм"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="w-full"
+        />
+        {searchResults.length > 0 && (
+          <div className="absolute z-10 bg-white border border-gray-300 rounded-md mt-1 w-full">
+            {searchResults.map((product) => (
+              <div
+                key={product.id}
+                className="p-2 cursor-pointer hover:bg-gray-100 flex items-center"
+                onClick={() => handleSearchSelect(product)}
+              >
+                <img
+                  src={product.imageSrc}
+                  alt={product.title}
+                  className="w-10 h-10 mr-2"
+                />
+                <div>
+                  <p>{product.title}</p>
+                  <p>
+                    {calculateDiscountedPrice(
+                      product.price,
+                      product.discount
+                    ).toFixed(2)}{" "}
+                    $
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       <div className="flex flex-row gap-4 items-center max-md:hidden">
         {!isLoggedIn ? (
           <>
@@ -131,7 +199,10 @@ const Header = () => {
                 >
                   Профиль
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem
+                  onClick={handleHistory}
+                  className="cursor-pointer"
+                >
                   Мои покупки
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-gray-200" />
@@ -206,7 +277,10 @@ const Header = () => {
                     >
                       Профиль
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer">
+                    <DropdownMenuItem
+                      onClick={handleHistory}
+                      className="cursor-pointer"
+                    >
                       Мои покупки
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-gray-200" />

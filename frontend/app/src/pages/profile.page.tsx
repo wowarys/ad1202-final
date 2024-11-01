@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Avatar, AvatarFallback } from "../ui/avatar";
-import { Pencil, Calendar, User2 } from "lucide-react";
+import { Pencil, Calendar, User2, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { getAgeText, getInitials } from "../lib/utils";
 import { fetchUserProfile, editProfile } from "../api/api";
@@ -39,12 +39,15 @@ const ProfilePage = () => {
     bio: "",
   });
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) {
       fetchUserProfile(token).then((data) => {
         setProfile(data);
         setEditProfileData({ name: data.name, age: data.age, bio: data.bio });
+        setLoading(false);
       });
     }
   }, []);
@@ -69,6 +72,14 @@ const ProfilePage = () => {
       console.error("Error updating profile", error);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="container max-w-4xl !py-8 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-4xl !py-8">

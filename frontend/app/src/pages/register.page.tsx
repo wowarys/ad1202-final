@@ -21,6 +21,7 @@ import {
 } from "../ui/card";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { registerUser } from "../api/api";
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -31,18 +32,36 @@ const RegisterPage = () => {
       email: z.string().email({
         message: "Введите корректный email адрес",
       }),
-      username: z.string().min(6, {
-        message: "Имя пользователя должно содержать минимум 6 символов",
-      }),
-      firstName: z.string().min(2, {
-        message: "Имя должно содержать минимум 2 символа",
-      }),
-      lastName: z.string().min(2, {
-        message: "Фамилия должна содержать минимум 2 символа",
-      }),
-      password: z.string().min(8, {
-        message: "Пароль должен содержать минимум 8 символов",
-      }),
+      username: z
+        .string()
+        .min(6, {
+          message: "Имя пользователя должно содержать минимум 6 символов",
+        })
+        .regex(/^[A-Za-z0-9]+$/, {
+          message:
+            "Имя пользователя может содержать только английские буквы и цифры",
+        }),
+      password: z
+        .string()
+        .min(8, {
+          message: "Пароль должен содержать минимум 8 символов",
+        })
+        .regex(/^[A-Za-z0-9!@#$%^&*()_+[\]{};':"\\|,.<>/?-]+$/, {
+          message:
+            "Пароль может содержать только английские буквы, цифры и специальные знаки",
+        })
+        .regex(/^[A-Za-z0-9!@#$%^&*()_+[\]{};':"\\|,.<>/?-]+$/, {
+          message: "Пароль может содержать только английские буквы и цифры",
+        })
+        .regex(/[A-Z]/, {
+          message: "Пароль должен содержать минимум одну заглавную букву",
+        })
+        .regex(/[!@#$%^&*()_+[\]{};':"\\|,.<>/?-]/, {
+          message: "Пароль должен содержать минимум один специальный знак",
+        })
+        .regex(/[0-9]{3,}/, {
+          message: "Пароль должен содержать минимум три цифры",
+        }),
       confirmPassword: z.string(),
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -55,22 +74,34 @@ const RegisterPage = () => {
     defaultValues: {
       email: "",
       username: "",
-      firstName: "",
-      lastName: "",
       password: "",
       confirmPassword: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
-
   const navigate = useNavigate();
+
+  function onSubmit(values: {
+    username: string;
+    password: string;
+    email: string;
+  }) {
+    registerUser({
+      username: values.username,
+      password: values.password,
+      email: values.email,
+    })
+      .then(() => {
+        navigate("/sign/in");
+      })
+      .catch((error) => {
+        console.error("Ошибка при авторизации", error);
+      });
+  }
 
   return (
     <div className="container">
-      <div className="flex justify-center items-center min-h-screen bg-gray-50 py-8">
+      <div className="flex justify-center items-center min-h-screen py-8">
         <Card className="w-full max-w-md mx-4 shadow-lg">
           <CardHeader className="space-y-1">
             <div className="flex items-center justify-center gap-2">
@@ -127,46 +158,6 @@ const RegisterPage = () => {
                     </FormItem>
                   )}
                 />
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1.5">
-                        <FormLabel className="text-sm font-medium">
-                          Имя
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Введите имя"
-                            {...field}
-                            className="shadow-sm"
-                          />
-                        </FormControl>
-                        <FormMessage className="text-xs" />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1.5">
-                        <FormLabel className="text-sm font-medium">
-                          Фамилия
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Введите фамилию"
-                            {...field}
-                            className="shadow-sm"
-                          />
-                        </FormControl>
-                        <FormMessage className="text-xs" />
-                      </FormItem>
-                    )}
-                  />
-                </div>
                 <FormField
                   control={form.control}
                   name="password"
@@ -247,7 +238,7 @@ const RegisterPage = () => {
                     <UserPlus className="mr-2" size={16} /> Зарегистрироваться
                   </Button>
                   <div className="text-sm text-center text-gray-500">
-                    Уже есть аккаунт?&nbsp;
+                    Уже есть аккаунт?
                     <Button
                       variant="link"
                       className="px-1 text-purple-600 hover:text-purple-700 transition-colors"

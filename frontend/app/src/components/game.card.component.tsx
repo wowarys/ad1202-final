@@ -1,9 +1,9 @@
 import { Heart } from "lucide-react";
-import React, { useState, FC } from "react";
+import React, { FC } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
-  id: string | number;
+  id: number;
   title: string;
   description: string;
   category: string[];
@@ -11,7 +11,11 @@ interface Props {
   discount: number;
   views: number;
   imageSrc: string;
-  initialLikes: number;
+  likes: number;
+  liked: boolean;
+  disableLike?: boolean;
+  // eslint-disable-next-line no-unused-vars
+  onLikeToggle: (id: number) => void;
 }
 
 const GameCard: FC<Props> = ({
@@ -23,17 +27,18 @@ const GameCard: FC<Props> = ({
   discount,
   views,
   imageSrc,
-  initialLikes = 0,
+  likes,
+  liked,
+  disableLike = false,
+  onLikeToggle,
 }) => {
-  const [isLiked, setIsLiked] = useState(false);
-  const [likes, setLikes] = useState(initialLikes);
   const navigate = useNavigate();
   const discountedPrice = price - price * (discount / 100);
 
-  const handleLike = (e: { stopPropagation: () => void }) => {
+  const handleLike = (e: React.MouseEvent) => {
+    if (disableLike) return;
     e.stopPropagation();
-    setIsLiked(!isLiked);
-    setLikes((prev) => (isLiked ? prev - 1 : prev + 1));
+    onLikeToggle(id);
   };
 
   const handleCardClick = () => {
@@ -52,7 +57,7 @@ const GameCard: FC<Props> = ({
           src={imageSrc}
           alt={title}
           className="w-full h-48 object-cover transition-transform duration-300
-                     group-hover:scale-110"
+                       group-hover:scale-110"
         />
         {discount > 0 && (
           <div className="absolute top-3 right-3 bg-red-500 text-white px-2 py-1 rounded-md">
@@ -68,18 +73,23 @@ const GameCard: FC<Props> = ({
           </h3>
           <button
             onClick={handleLike}
-            className="flex items-center gap-1 group p-1 hover:bg-gray-100 rounded-full"
+            disabled={disableLike}
+            className={`flex items-center gap-1 group p-1 ${
+              disableLike
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-gray-100"
+            } rounded-full`}
           >
             <Heart
               size={24}
               className={`transform transition-all duration-300 ${
-                isLiked
+                liked
                   ? "text-red-500 fill-red-500 scale-110"
                   : "text-gray-400 hover:scale-110"
               }`}
             />
             <span
-              className={`text-sm ${isLiked ? "text-red-500" : "text-gray-400"}`}
+              className={`text-sm ${liked ? "text-red-500" : "text-gray-400"}`}
             >
               {likes}
             </span>
